@@ -1,7 +1,7 @@
 
 /*
  * To change this template, choose Tools | Templates
- * and open the template in the editor.++
+ * and open the template in the editor.
  */
 
 /*
@@ -547,7 +547,11 @@ public class GUI extends javax.swing.JFrame   {
      */
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         // Warn the server that we closed the GUI and that it can stop
+       
+   
+        game.setbGameInProgress(false);
         game.setbGameQuit(true);
+         game.unregister();
 
         //Delete the GUI
         this.dispose();

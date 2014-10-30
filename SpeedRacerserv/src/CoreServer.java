@@ -150,7 +150,7 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
                
    }
      
-     public  boolean StartGame(int idcl) throws RemoteException{
+     public  void StartGame(int idcl) throws RemoteException{
          
          //ArrayList playerList = new ArrayList();  
          int nbreadv = 0 ;
@@ -210,23 +210,29 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
 
                 
                 executor.execute(CurrentCore); // lancer une partie dans un thread
+                executor.shutdown(); 
+            //while (!executor.isTerminated())
                 
                  try {
                      this.notifyclient(idcl, "Game Started... ");
                  } catch (RemoteException ex) {
                      Logger.getLogger(CoreServer.class.getName()).log(Level.SEVERE, null, ex);
                  }
-
-                     
-          }
-
+           // executor.shutdown(); 
+            //while (!executor.isTerminated()) 
+                
+            //{ } 
+              
+        }
+      
           
-        return (true);
-    
-             
+          
+                
+      
+        
     }
          
-  
+
  
 // This remote method allows an object client to 
 // cancel its registration for callback
@@ -236,8 +242,8 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
      try {
                
                  Core retire = htIdCore.remove(callbackClientObject);
-                 IGUI gu = htIdStub.remove(callbackClientObject);
-                 retire.unregisterForCallback(gu);
+                 htIdStub.remove(callbackClientObject);
+                 retire.unregisterForCallback(callbackClientObject);
 
                   
             } catch (Exception ex) {
@@ -246,10 +252,6 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
            
   } 
 
-
-
-  
-   
 
     public void newGrid(int gamegui) throws RemoteException {
         htIdCore.get(gamegui).newGrid();

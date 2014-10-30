@@ -30,7 +30,7 @@ public interface ICore extends Remote{
     public void newGrid(int gamegui)throws RemoteException;
     
     
-   public boolean StartGame(int id)throws RemoteException;
+   public void StartGame(int id)throws RemoteException;
     
    public  int register(IGUI gui) throws RemoteException;
    

@@ -603,6 +603,8 @@ public class Core extends Thread{
             catch(Exception e)
             {
                 //In case of problem, we only display the exception, but we keep going
+                
+                
                 e.printStackTrace();
                 this.setbGameQuit(true);
             }
@@ -2090,14 +2092,14 @@ public class Core extends Thread{
 // @param id is an ID for the client; to be used by
 // the server to uniquely identify the registered client.
   public synchronized void unregisterForCallback(
-     IGUI callbackClientObject) 
+     int callbackClientObject) 
     {
     if (clientList.removeElement(callbackClientObject)) {
       System.out.println("Unregistered client ");
     } else {
        System.out.println(
-         "unregister: clientwasn't registered.");
-    }
+         "unregister: client wasn't registered.");
+    } 
   } 
 
   private synchronized void doCallbacks( ) throws java.rmi.RemoteException {

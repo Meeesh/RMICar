@@ -170,7 +170,7 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
          myServer = (ICore) java.rmi.Naming.lookup(address);
          
          
-         //give the server a remote reference to myself with which it can call me back
+         //give the server a remote reference to myself with which it can call me back and return client id
          idclient = this.myServer.register((IGUI) java.rmi.server.RemoteObject.toStub(this));
          
          }
@@ -197,6 +197,14 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
    public void setbutton(boolean t)throws RemoteException{
        
        gGUI.setbutton(t);
+   }
+   
+   public void unregister(){
+        try {
+            myServer.unregister(idclient);
+        } catch (RemoteException ex) {
+            Logger.getLogger(GameClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
    }
    
    
