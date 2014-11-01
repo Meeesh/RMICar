@@ -62,7 +62,7 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
       props.setProperty("java.security.policy", "server.policy");
       startRegistry(1099);
       //ICore exportedObj =  new Core();
-      registryURL =  "rmi://localhost/CoreServer";
+      registryURL =  "rmi://192.168.10.1/CoreServer";
       Naming.rebind(registryURL,(CoreServer) this);
       serverisup = false;
       ispresent = false;

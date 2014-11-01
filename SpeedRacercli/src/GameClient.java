@@ -51,7 +51,7 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
             
            playerList = new ArrayList();
            playerList.add(0, idclient); //ajoute l'id du client dans la liste des joueurs
-            myServer.StartGame(idclient); //demarre la partie
+           myServer.StartGame(idclient); //demarre la partie
            createGui();
           
    

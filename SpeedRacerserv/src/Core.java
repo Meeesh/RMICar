@@ -426,7 +426,7 @@ public class Core implements Runnable{
                     {
                        for(int c = 0; c<clientList.size();c++){    
                         //Move the cars according to their speed, acceleration and to the pressed keys (for player car only)
-                        moveCars(isUP_P((int)clientList.get(c)), isDO_P((int)clientList.get(c)), isLE_P((int)clientList.get(c)), isRI_P((int)clientList.get(c)), vCars);
+                        moveCars(isUP_P((int)clientList.get(c)), isDO_P((int)clientList.get(c)), isLE_P((int)clientList.get(c)), isRI_P((int)clientList.get(c)), vCars, c);
                        }
                         //Manage the collisions (the finish line is a CollidableRectangle, so it also tells whether the game must end soon)
                         setbGameFinishing(manageCollisions(vCars, vTabObstacles, isbGameFinishing()));
@@ -556,7 +556,7 @@ public class Core implements Runnable{
                       for(int c = 0; c<clientList.size();c++){    
 
                     //Move the cars according to their speed, acceleration and to the pressed keys (for player car only)
-                        moveCars(isUP_P((int)clientList.get(c)), isDO_P((int)clientList.get(c)), isLE_P((int)clientList.get(c)), isRI_P((int)clientList.get(c)), vCars);
+   /* */                    moveCars(isUP_P((int)clientList.get(c)), isDO_P((int)clientList.get(c)), isLE_P((int)clientList.get(c)), isRI_P((int)clientList.get(c)), vCars, c);
                       }
                     //Manage the collisions (the finish line is a CollidableRectangle, so it also tells whether the game must end soon)
                     setbGameFinishing(manageCollisions(vCars, vTabObstacles, isbGameFinishing()));
@@ -610,7 +610,7 @@ public class Core implements Runnable{
                     if(isbGameInProgress() == true)
                        for(int c = 0; c<clientList.size();c++){ 
                                  
-                                setScore((int) (getScore((int)clientList.get(c)) + Math.pow(vCars.elementAt(c).ySpeed, 2)),(int)clientList.get(c));
+ /*  */                        setScore((int) (getScore((int)clientList.get(c)) + Math.pow(vCars.elementAt(c).ySpeed, 2)),(int)clientList.get(c));
                             
                              }
                 }
@@ -862,10 +862,10 @@ public class Core implements Runnable{
      * @param RI_P True if the right arrow is being pressed
      * @param vCars The vector of cars to move
      */
-    public void moveCars(boolean UP_P, boolean DO_P, boolean LE_P, boolean RI_P, Vector<Car> vCars)
+    public void moveCars(boolean UP_P, boolean DO_P, boolean LE_P, boolean RI_P, Vector<Car> vCars, int c)
     {
         //Extract the player's car (always at position 0 in the vector!)
-        Car myCar = vCars.elementAt(1);
+        Car myCar = vCars.elementAt(c);
 
         //If we did not pass the finish line, we can still act on the acceleration on the y axis
         if(!(bGameFinishing))
