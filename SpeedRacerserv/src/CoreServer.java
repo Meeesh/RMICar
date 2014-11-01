@@ -21,11 +21,13 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService; 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,14 +37,14 @@ import java.util.logging.Logger;
 public class CoreServer extends UnicastRemoteObject implements ICore {
     
     private static Core CurrentCore;
+        private static int currentid;
+
     private static boolean serverisup; 
     private static boolean ispresent;
     private static Hashtable<Integer, Core> htIdCore; //hashtable contenant le stub client et le core auquel il est associé
     private static Hashtable<Integer, IGUI> htIdStub; //hashtable contenant le stub client et l'id associé
-    //private static ExecutorService executor;
-    private static  ExecutorService executor;
     private static int nextID = 0;
-    //private static ArrayBlockingQueue<IGUI> guiQ;
+    private static ArrayBlockingQueue guiQ;
      private HashSet<IGUI> clients;
 
     private Timer timer;
@@ -77,8 +79,9 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
                htIdStub = new Hashtable<Integer, IGUI>();
                htIdCore = new Hashtable<Integer, Core>();
 
-              // guiQ = new ArrayBlockingQueue<IGUI>(128);// cree une file d'attente pour les clients
-               executor = Executors.newFixedThreadPool(2); 
+               guiQ = new ArrayBlockingQueue<Core>(12);// cree une file d'attente pour les clients
+                //executor = new ThreadPoolExecutor(2, 2, 1, TimeUnit.MILLISECONDS,guiQ ); 
+
                clients = new HashSet<IGUI>();
     }
     
@@ -86,22 +89,34 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
         
 
               CoreServer coreserver = null ; int id;
+            ExecutorService pool = Executors.newFixedThreadPool(2); 
 
         try {
             // je cree une instance de Coreserver
             coreserver = new CoreServer();
             serverisup = true;
+
             System.out.println("Server is ready and waiting");
-            
-            
-         
-            
+     
         } catch (Exception ex) {
             Logger.getLogger(CoreServer.class.getName()).log(Level.SEVERE, null, ex);
         }
        
-     
+        
+        while (true){
+            
+            if(!(guiQ.isEmpty())){
+                
+                    pool.execute((Core)guiQ.remove()); // lancer une partie dans un thread
+                   // guiQ.remove();
+
+                   
+            }
+           
+          
         }
+        
+    }  
         
     
     
@@ -133,10 +148,11 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
      
          int id;
          
-         
+
          synchronized(this) {
             id = ++nextID;
         }
+
 			clients.add(callbackClientObject); //ajoute le client dans le vecteur
                         callbackClientObject.notifymessage("Connecting to the server ...");
 
@@ -158,14 +174,15 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
         if(htIdCore.containsKey(idcl)){  //teste si le joueur est déja associé à une partie
             try {
                 this.notifyclient(idcl, "Please wait..the game is starting ");
-                 htIdStub.get(idcl).createGui();
-                htIdStub.get(idcl).setistartgame(true); // signale que le jeu est deja lancé et demarre la gui
+               //  htIdStub.get(idcl).createGui();//demarre la gui
+              //  htIdStub.get(idcl).setistartgame(true); // signale que le jeu est deja lancé
                 
             } catch (RemoteException ex) {
                 Logger.getLogger(CoreServer.class.getName()).log(Level.SEVERE, null, ex);
             }
        
         }else{
+            
             
                 ArrayList playerList;  //cree une liste de joueur
                // playerList.add(0, idcl); //ajoute l'id du joueur dans la liste
@@ -184,8 +201,15 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
                 
                 if(nbreadv >= 1){  //mode multijoueur
                     
-                    this.notifyclient(idcl, "Please enter competitor' s ID "); 
-                    playerList = htIdStub.get(idcl).getCompetitors(nbreadv); //obtient la liste des joueurs
+                    
+                    playerList = this.getCompetitors(idcl, nbreadv); //obtient la liste des joueurs
+                    
+                   /* while(!(this.checkList(playerList))){
+                        
+                        this.notifyclient(idcl, "Incorrect ID entered !!! ");
+                         playerList = this.getCompetitors(idcl, nbreadv);
+                        
+                    }*/
                     
                     for (int i = 0; i < playerList.size() ; i++){
 
@@ -203,34 +227,81 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
  
                            htIdCore.put(idcl, CurrentCore);  //creer une entrée idclient-core dans la table pour les adversaires du cleint
                            CurrentCore.registerForCallback(idcl); //enrégistrer l'id du client  auprès  du core
-                           //htIdStub.get(idcl).setistartgame(true);
                 }
                 
 
-
-                
-                executor.execute(CurrentCore); // lancer une partie dans un thread
-                executor.shutdown(); 
-            //while (!executor.isTerminated())
                 
                  try {
-                     this.notifyclient(idcl, "Game Started... ");
-                 } catch (RemoteException ex) {
-                     Logger.getLogger(CoreServer.class.getName()).log(Level.SEVERE, null, ex);
-                 }
-           // executor.shutdown(); 
-            //while (!executor.isTerminated()) 
+                     
+                     //executor.execute(CurrentCore); 
+
+                    // this.notifyclient(idcl, "Game Started... ");
+                     guiQ.put(CurrentCore);
+
                 
-            //{ } 
-              
-        }
-      
-          
-          
-                
-      
+                 } catch (InterruptedException ex) {
+                 Logger.getLogger(CoreServer.class.getName()).log(Level.SEVERE, null, ex);
+             }
         
+ 
+        }
+          
+
     }
+     
+     public ArrayList getCompetitors (int idc, int nb){   //prend en parametre l'id client et le nombre d'adversaire et retourne la liste des id des adversaires
+         
+         ArrayList playerLt = new ArrayList(); int id = 0;
+         playerLt.add(idc); //ajoute l'id du joueur courant dans la liste des joueurs
+         
+    
+            //this.notifyclient(idc, "Please enter competitor' s ID ");
+        
+           for (int i = 1; i <= nb ; i++){
+            
+               while(true){
+                   
+                        try {
+                            this.notifyclient(idc,"Opponent's ID "+i+":  ");
+                            id = htIdStub.get(idc).getCompetitors();
+
+
+                         if((!(playerLt.contains(id)))&& (htIdStub.containsKey(id))){
+
+                                break;
+                     } 
+
+                         this.notifyclient(idc, "Please enter a different Opponent' s ID ");
+
+                        } catch (RemoteException ex) {
+                            Logger.getLogger(CoreServer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
+
+             }
+        
+             playerLt.add(i, id); //ajouter les id dans le tableau
+           }
+           
+           return playerLt;
+           
+     }
+     
+   /*  public boolean checkList(ArrayList player){
+         
+         for (int i = 0; i < player.size() ; i++){
+             if(!( htIdStub.containsKey(player.get(i)))){
+                 
+                 return false;
+                 
+             }
+             
+         }
+         
+         return true;
+         
+         
+     }*/
          
 
  
@@ -284,45 +355,45 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
     }
 
     public boolean isUP_P(int gamegui) throws RemoteException {
-        return htIdCore.get(gamegui).isUP_P();
+        return htIdCore.get(gamegui).isUP_P(gamegui);
     }
 
     
     public void setUP_P(boolean aUP_P, int gamegui) throws RemoteException {
-       htIdCore.get(gamegui).setUP_P(aUP_P);
+       htIdCore.get(gamegui).setUP_P(aUP_P, gamegui);
     }
 
     public boolean isDO_P(int gamegui) throws RemoteException {
-        return htIdCore.get(gamegui).isDO_P();
+        return htIdCore.get(gamegui).isDO_P(gamegui);
     }
 
     
     public void setDO_P(boolean aDO_P, int gamegui) throws RemoteException {
-         htIdCore.get(gamegui).setDO_P(aDO_P);
+         htIdCore.get(gamegui).setDO_P(aDO_P, gamegui);
     }
 
     public boolean isRI_P(int gamegui) throws RemoteException {
-        return htIdCore.get(gamegui).isRI_P();
+        return htIdCore.get(gamegui).isRI_P(gamegui);
     }
 
     public void setRI_P(boolean aRI_P, int gamegui) throws RemoteException {
-         htIdCore.get(gamegui).setRI_P(aRI_P);
+         htIdCore.get(gamegui).setRI_P(aRI_P, gamegui);
     }
 
     public boolean isLE_P(int gamegui) throws RemoteException {
-        return htIdCore.get(gamegui).isLE_P();
+        return htIdCore.get(gamegui).isLE_P(gamegui);
     }
 
     public void setLE_P(boolean aLE_P, int gamegui) throws RemoteException {
-        htIdCore.get(gamegui).setLE_P(aLE_P);
+        htIdCore.get(gamegui).setLE_P(aLE_P, gamegui);
     }
 
     public int getScore(int gamegui) throws RemoteException {
-       return htIdCore.get(gamegui).getScore();
+       return htIdCore.get(gamegui).getScore(gamegui);
     }
 
     public void setScore(int aScore, int gamegui) throws RemoteException {
-        htIdCore.get(gamegui).setScore(aScore);
+        htIdCore.get(gamegui).setScore(aScore, gamegui);
     }
     
     public void update(int clientid, Vector<Rectangle> vDisplayRoad, Vector<Rectangle> vDisplayObstacles, Vector<Rectangle> vDisplayCars, Car myCar, int pos, int nbParticipants, boolean bGameOver, String sPosition) throws RemoteException{

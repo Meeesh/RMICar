@@ -76,5 +76,7 @@ public class Car extends CollidableRectangle implements Serializable {
         this.Racer = Racer;
         bustedTime = 0;
         bustedSpeed = 0;
+        
     }
+    
 }

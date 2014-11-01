@@ -33,6 +33,7 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
     private static ArrayList playerList;
     private boolean isgamestart = false;
     private int n = 0 ; //nbre d'adversaires de la partie
+   
     
     
     
@@ -50,7 +51,7 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
             
            playerList = new ArrayList();
            playerList.add(0, idclient); //ajoute l'id du client dans la liste des joueurs
-           myServer.StartGame(idclient); //demarre la partie
+            myServer.StartGame(idclient); //demarre la partie
            createGui();
           
    
@@ -59,14 +60,21 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
       
       public int getnumberplay(){  //recupere le nombre de joueurs de la partie
           
-          Scanner sc = new Scanner(System.in);int id;
+         Scanner sc = new Scanner(System.in);
+          int id;
           id = sc.nextInt();
           return id;
       }
       
-      public ArrayList getCompetitors(int n){  //recupere les id des adversaires de la partie
+      public int getCompetitors(){  //recupere les id des adversaires de la partie
+           Scanner sc = new Scanner(System.in);
+          int id;
+          id = sc.nextInt();
+          return id;
           
-          Scanner sc = new Scanner(System.in);int id;
+          
+          
+        /*  Scanner sc = new Scanner(System.in);int id;
           
           for(int i = 1; i <= n ; i++){
                
@@ -76,11 +84,6 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
                     System.out.print("Opponent's ID "+i+":  ");
                     id = sc.nextInt();
 
-                   /* if(id != idclient){ //teste si l'id renseigné est different de notre propre id
-
-                        break;
-                    }
-                    System.err.println("Please enter a different competitor' s ID "); */
                     
                      if(!(playerList.contains(id))){
                          
@@ -93,7 +96,7 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
                playerList.add(i, id); //ajouter les id dans le tableau
            }
            
-          return playerList;
+          return playerList;*/
           
       }
 
@@ -169,9 +172,11 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
          {
          myServer = (ICore) java.rmi.Naming.lookup(address);
          
-         
+          
          //give the server a remote reference to myself with which it can call me back and return client id
          idclient = this.myServer.register((IGUI) java.rmi.server.RemoteObject.toStub(this));
+         
+        
          
          }
          catch(Exception e)
@@ -313,7 +318,7 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
          
         try
          {
-           myServer.setbGameInProgress(abGameFinishing, idclient);
+           myServer.setbGameFinishing(abGameFinishing, idclient);
          }
          catch(Exception e)
          {
@@ -345,7 +350,7 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
     public void setbGameQuit(boolean abGameQuit) {
         try
          {
-           myServer.setbGameInProgress(abGameQuit,idclient);
+           myServer.setbGameQuit(abGameQuit,idclient);
          }
          catch(Exception e)
          {
@@ -486,6 +491,8 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
           try {
               
             IGUI gameClient = new GameClient();
+           
+
         }
         catch(Exception e)
         {

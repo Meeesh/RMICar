@@ -13,6 +13,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Iterator;
 import java.util.TimerTask;
@@ -25,7 +26,7 @@ import java.util.logging.Logger;
  * @author Sam
  * @version 1.0
  */
-public class Core extends Thread{
+public class Core implements Runnable{
 
 
 
@@ -33,6 +34,7 @@ public class Core extends Thread{
     //liste de client
     
     private Vector clientList;
+    private static Hashtable<Integer, Client> htIdClient;
 
     /**
      * The player's score
@@ -168,19 +170,18 @@ public class Core extends Thread{
     {
         super();
         clientList = new Vector();
+        htIdClient = new Hashtable<Integer, Client>();
     }
     
      public Core(CoreServer cor)throws RemoteException
     {
         super();
         clientList = new Vector();
+        htIdClient = new Hashtable<Integer, Client>();
+
         coreserv = cor;
     }
-      
-    //This is actually how the client registers itself
-    public void setGUI(IGUI gui) {
-	this.gameclient = gui;
-    }
+   
 
 
 
@@ -423,10 +424,10 @@ public class Core extends Thread{
                     //If we must update the game status
                     if(gameRunTime%gameMaxRunTime == 0 && isbGameInProgress() == true)
                     {
-
+                       for(int c = 0; c<clientList.size();c++){    
                         //Move the cars according to their speed, acceleration and to the pressed keys (for player car only)
-                        moveCars(isUP_P(), isDO_P(), isLE_P(), isRI_P(), vCars);
-
+                        moveCars(isUP_P((int)clientList.get(c)), isDO_P((int)clientList.get(c)), isLE_P((int)clientList.get(c)), isRI_P((int)clientList.get(c)), vCars);
+                       }
                         //Manage the collisions (the finish line is a CollidableRectangle, so it also tells whether the game must end soon)
                         setbGameFinishing(manageCollisions(vCars, vTabObstacles, isbGameFinishing()));
 
@@ -468,7 +469,12 @@ public class Core extends Thread{
                     {
                         runTime = 0;
                         if(isbGameInProgress() == true)
-                            setScore((int) (getScore() + Math.pow(vCars.elementAt(0).ySpeed, 2)));
+                            
+                             for(int c = 0; c<clientList.size();c++){ 
+                                 
+                                setScore((int) (getScore((int)clientList.get(c)) + Math.pow(vCars.elementAt(c).ySpeed, 2)),(int)clientList.get(c));
+                            
+                             }
                     }
                 }
                 catch(Exception e)
@@ -502,7 +508,11 @@ public class Core extends Thread{
      */
     public void run()
     {
+        
+
         try {
+            this.notifyclient("Game Started... ");
+
             this.notifyclient(Thread.currentThread().getName());//affiche le thread courant
         } catch (RemoteException ex) {
             Logger.getLogger(Core.class.getName()).log(Level.SEVERE, null, ex);
@@ -543,10 +553,11 @@ public class Core extends Thread{
                 //If we must update the game status
                 if(gameRunTime%gameMaxRunTime == 0 && isbGameInProgress() == true)
                 {
-                    
+                      for(int c = 0; c<clientList.size();c++){    
+
                     //Move the cars according to their speed, acceleration and to the pressed keys (for player car only)
-                    moveCars(isUP_P(), isDO_P(), isLE_P(), isRI_P(), vCars);
-                    
+                        moveCars(isUP_P((int)clientList.get(c)), isDO_P((int)clientList.get(c)), isLE_P((int)clientList.get(c)), isRI_P((int)clientList.get(c)), vCars);
+                      }
                     //Manage the collisions (the finish line is a CollidableRectangle, so it also tells whether the game must end soon)
                     setbGameFinishing(manageCollisions(vCars, vTabObstacles, isbGameFinishing()));
 
@@ -597,7 +608,11 @@ public class Core extends Thread{
                 {
                     runTime = 0;
                     if(isbGameInProgress() == true)
-                        setScore((int) (getScore() + Math.pow(vCars.elementAt(0).ySpeed, 2)));
+                       for(int c = 0; c<clientList.size();c++){ 
+                                 
+                                setScore((int) (getScore((int)clientList.get(c)) + Math.pow(vCars.elementAt(c).ySpeed, 2)),(int)clientList.get(c));
+                            
+                             }
                 }
             }
             catch(Exception e)
@@ -850,7 +865,7 @@ public class Core extends Thread{
     public void moveCars(boolean UP_P, boolean DO_P, boolean LE_P, boolean RI_P, Vector<Car> vCars)
     {
         //Extract the player's car (always at position 0 in the vector!)
-        Car myCar = vCars.elementAt(0);
+        Car myCar = vCars.elementAt(1);
 
         //If we did not pass the finish line, we can still act on the acceleration on the y axis
         if(!(bGameFinishing))
@@ -1971,11 +1986,23 @@ public class Core extends Thread{
 
         //The cars
         //Starting with the player's car
-        vCars = new Vector<Car>();
-        crTemp = new Car(158,43100,32,64,6,1,0,0.5,0,0,true);
+        vCars = new Vector<Car>(); int a = 0;
+        
+        for(int i = 0; i<clientList.size();i++){  //boucle pour creer les voitures et les associer aux clientsmo
+            
+            
+        crTemp = new Car(110+a,43100,32,64,6,1,0,0.5,0,0,true);
         vTabObstacles[108] = new Vector<CollidableRectangle>();
         vTabObstacles[108].add(crTemp);
-        vCars.add((Car)crTemp);
+        vCars.add((Car)crTemp); 
+        htIdClient.get(clientList.get(i)).setCar((Car)crTemp);  // cree une voiture et l'associe à un client
+            a = a+50;
+        }
+        
+        /*crTemp = new Car(158,43100,32,64,6,1,0,0.5,0,0,true);
+        vTabObstacles[108] = new Vector<CollidableRectangle>();
+        vTabObstacles[108].add(crTemp);
+        vCars.add((Car)crTemp);*/
 
         //Civilians
         for(int i = 0; i < 30; i++)
@@ -2065,10 +2092,16 @@ public class Core extends Thread{
     
      public synchronized void registerForCallback(
     int callbackClientObject)
+             
    {
+    
       // store the callback object into the vector
       if (!(clientList.contains(callbackClientObject))) {
+          
+         //create a new client
+         Client client = new Client(callbackClientObject);        
          clientList.addElement(callbackClientObject);
+         htIdClient.put(callbackClientObject, client);
       System.out.println("Registered new client ");
      // doCallbacks();
     } // end if
@@ -2095,6 +2128,8 @@ public class Core extends Thread{
      int callbackClientObject) 
     {
     if (clientList.removeElement(callbackClientObject)) {
+      
+      htIdClient.remove(callbackClientObject);
       System.out.println("Unregistered client ");
     } else {
        System.out.println(
@@ -2118,7 +2153,9 @@ public class Core extends Thread{
     /*System.out.println("********************************\n" +
                        "Server completed callbacks ---");*/
   } // doCallbacks
-
+  
+  
+  
     /**
      * @return the sFinalPosition
      */
@@ -2164,17 +2201,18 @@ public class Core extends Thread{
     /**
      * @return the score
      */
-    public int getScore() {
-        return score;
+    public int getScore(int gamegui) {
+         Client clientmaj = htIdClient.get(gamegui);
+        return clientmaj.getScore();
     }
 
     /**
      * @param aScore the score to set
      */
-    public void setScore(int aScore) {
-        score = aScore;
+    public void setScore(int aScore, int gamegui) {
+          htIdClient.get(gamegui).setCcore(aScore);
+        
     }
-
     /**
      * @return the bGameFinishing
      */
@@ -2220,57 +2258,219 @@ public class Core extends Thread{
        /**
      * @return the UP_P
      */
-    public boolean isUP_P(){
-        return UP_P;
+    public boolean isUP_P(int gamegui){
+        
+        Client clientmaj = htIdClient.get(gamegui);
+        return clientmaj.UP_P;
+    }
+
+    /**
+     * @param aUP_P the UP_P to set
+     */
+    public void setUP_P(boolean aUP_P, int gamegui) {
+         htIdClient.get(gamegui).setUP_P(aUP_P);
+        
+    }
+
+    /**
+     * @return the DO_P
+     */
+    public boolean isDO_P(int gamegui){
+        Client clientmaj = htIdClient.get(gamegui);
+        return clientmaj.DO_P;
+    }
+
+    /**
+     * @param aDO_P the DO_P to set
+     */
+    public void setDO_P(boolean aDO_P, int gamegui) {
+        htIdClient.get(gamegui).setDO_P(aDO_P);
+    }
+
+    /**
+     * @return the RI_P
+     */
+    public  boolean isRI_P(int gamegui) {
+        Client clientmaj = htIdClient.get(gamegui);
+        return clientmaj.RI_P;
+    }
+
+    /**
+     * @param aRI_P the RI_P to set
+     */
+    public void setRI_P(boolean aRI_P, int gamegui) {
+       htIdClient.get(gamegui).setRI_P(aRI_P);    }
+
+    /**
+     * @return the LE_P
+     */
+    public boolean isLE_P(int gamegui) {
+        Client clientmaj = htIdClient.get(gamegui);
+        return clientmaj.LE_P;
+    }
+
+    /**
+     * @param aLE_P the LE_P to set
+     */
+    public void setLE_P(boolean aLE_P, int gamegui) {
+        htIdClient.get(gamegui).setLE_P(aLE_P);
+    } 
+    
+    class Client {
+    
+    private int identifiant;
+    private int score;
+    private Car voiture;
+     /**
+     * True if the GUI is closing. False otherwise
+     */
+    private  boolean bGameQuit = false;
+
+    /**
+     * True if the player is pressing the up arrow key
+     */
+    private boolean UP_P;
+
+    /**
+     * True if the player is pressing the down arrow key
+     */
+    private boolean DO_P;
+
+    /**
+     * True if the player is pressing the right arrow key
+     */
+    private boolean RI_P;
+
+    /**
+     * True if the player is pressing the left arrow key
+     */
+    private boolean LE_P;
+
+    
+    /**
+     * The string representing the final position (rank) of the player after passing the finish line
+     */
+    private String sFinalPosition;
+
+    /**
+     * Integer representation of the final position (rank) of the player after passing the finish line
+     */
+    private int iFinalPosition;
+    
+    public Client(int id){
+        
+        identifiant = id;
+        score = 0;
+        voiture = null;
+        LE_P = false;
+        RI_P = false;
+        DO_P = false;
+        UP_P = false;
+        
+    }
+    
+    public int getId(){
+        
+        return identifiant;
+    }
+    
+    public void setId(int id){
+        
+        identifiant = id;
+    }
+    
+    public int getScore(){
+        
+        return score;
+    }
+    public void setCcore(int score){
+        
+        this.score = score;
+    }
+    
+    public Car getCar(){
+        
+        return voiture;
+    }
+    
+   public void setCar(Car voiture){
+       
+       this.voiture = voiture;
+   } 
+    public String getsFinalPosition(){
+        
+        return sFinalPosition;
+    }
+    
+    public void setsFinalPosition(String sFinalPosition){
+        
+        this.sFinalPosition = sFinalPosition;
+    }
+    
+    public void setiFinalPosition(int iFinalPosition){
+        
+        this.iFinalPosition = iFinalPosition;
+    }
+    public int getiFinalPosition(){
+        
+        return iFinalPosition;
+    }
+    
+     public boolean isUP_P(int gamegui){
+        
+        return this.UP_P;
     }
 
     /**
      * @param aUP_P the UP_P to set
      */
     public void setUP_P(boolean aUP_P) {
-        UP_P = aUP_P;
+        this.UP_P = aUP_P;
     }
 
     /**
      * @return the DO_P
      */
     public boolean isDO_P(){
-        return DO_P;
+        return this.DO_P;
     }
 
     /**
      * @param aDO_P the DO_P to set
      */
     public void setDO_P(boolean aDO_P) {
-        DO_P = aDO_P;
+        this.DO_P = aDO_P;
     }
 
     /**
      * @return the RI_P
      */
     public  boolean isRI_P() {
-        return RI_P;
+        return this.RI_P;
     }
 
     /**
      * @param aRI_P the RI_P to set
      */
     public void setRI_P(boolean aRI_P) {
-        RI_P = aRI_P;
+        this.RI_P = aRI_P;
     }
 
     /**
      * @return the LE_P
      */
     public boolean isLE_P() {
-        return LE_P;
+        return this.LE_P;
     }
 
     /**
      * @param aLE_P the LE_P to set
      */
     public void setLE_P(boolean aLE_P) {
-        LE_P = aLE_P;
+        this.LE_P = aLE_P;
     } 
+    
+    
+}
 
 }

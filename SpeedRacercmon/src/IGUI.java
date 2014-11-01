@@ -29,7 +29,7 @@ public interface IGUI extends Remote {
      
       public void  setistartgame(boolean t)throws RemoteException;
       
-      public ArrayList getCompetitors(int n)throws RemoteException;
+      public int getCompetitors()throws RemoteException;
       
       public int getnumberplay()throws RemoteException;
      

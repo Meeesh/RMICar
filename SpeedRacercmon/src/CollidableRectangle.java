@@ -38,4 +38,14 @@ public class CollidableRectangle extends Rectangle implements Serializable{
         super(x,y,width,height,id);
         this.effect = effect;
     }
+    
+    public void setPosx(double x){
+        
+        this.x = x;
+    }
+    
+    public void setPosy(){
+        
+        this.y = y;
+    }
 }
