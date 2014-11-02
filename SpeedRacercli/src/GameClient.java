@@ -45,7 +45,7 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
          super();
          
           //The Core
-            connectToServer("rmi://192.168.10.1/CoreServer");
+            connectToServer("rmi://localhost/CoreServer");
            // myServer = new Core();
             
             

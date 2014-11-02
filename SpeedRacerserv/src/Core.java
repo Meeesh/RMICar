@@ -445,7 +445,7 @@ public class Core implements Runnable{
                             int pos = 1;
                             int ypos = (int)(htIdClient.get(clientList.get(c)).getCar()).y;
                             Iterator<Car> iCars = vCars.iterator();
-                            Car temp = iCars.next(); //Skip first car (player car)
+                            Car temp = htIdClient.get(clientList.get(c)).getCar();
                             if(temp.bustedTime > 0)
                                 temp.bustedTime--;
                             while(iCars.hasNext())
@@ -453,8 +453,9 @@ public class Core implements Runnable{
                                 Car currentCar = iCars.next();
                                 if(currentCar.Racer)
                                 {
-                                    if(currentCar.y < ypos)
+                                    if(currentCar.y < ypos){
                                         pos++;
+                                    }
                                 }
                                 if(currentCar.bustedTime > 0)
                                     currentCar.bustedTime--;
@@ -575,7 +576,7 @@ public class Core implements Runnable{
                         int pos = 1;
                         int ypos = (int)(htIdClient.get(clientList.get(c)).getCar()).y;
                         Iterator<Car> iCars = vCars.iterator();
-                        Car temp = iCars.next(); //Skip first car (player car)
+                        Car temp = htIdClient.get(clientList.get(c)).getCar();
                         if(temp.bustedTime > 0)
                             temp.bustedTime--;
                         while(iCars.hasNext())
@@ -583,8 +584,10 @@ public class Core implements Runnable{
                             Car currentCar = iCars.next();
                             if(currentCar.Racer)
                             {
-                                if(currentCar.y < ypos)
+                                if(currentCar.y < ypos){
                                     pos++;
+                                }
+                                    
                             }
                             if(currentCar.bustedTime > 0)
                                 currentCar.bustedTime--;
@@ -2328,6 +2331,7 @@ public class Core implements Runnable{
     private int identifiant;
     private int score;
     private Car voiture;
+    private int position;
      /**
      * True if the GUI is closing. False otherwise
      */
@@ -2477,6 +2481,25 @@ public class Core implements Runnable{
         this.LE_P = aLE_P;
     } 
     
+    public void setPosPP(){
+        position++;
+    }
+    
+    public void setPosMM(){
+        position--;
+    }
+    
+    public void setPosP(int add){
+        position += add;
+    }
+    
+    public void setPosM(int min){
+        position -= min;
+    }
+    
+    public int getPos(){
+        return position;
+    }
     
 }
 
