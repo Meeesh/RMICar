@@ -2331,7 +2331,6 @@ public class Core implements Runnable{
     private int identifiant;
     private int score;
     private Car voiture;
-    private int position;
      /**
      * True if the GUI is closing. False otherwise
      */
@@ -2479,26 +2478,6 @@ public class Core implements Runnable{
      */
     public void setLE_P(boolean aLE_P) {
         this.LE_P = aLE_P;
-    } 
-    
-    public void setPosPP(){
-        position++;
-    }
-    
-    public void setPosMM(){
-        position--;
-    }
-    
-    public void setPosP(int add){
-        position += add;
-    }
-    
-    public void setPosM(int min){
-        position -= min;
-    }
-    
-    public int getPos(){
-        return position;
     }
     
 }
