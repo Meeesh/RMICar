@@ -426,24 +426,24 @@ public class Core implements Runnable{
                     {
                        for(int c = 0; c<clientList.size();c++){    
                         //Move the cars according to their speed, acceleration and to the pressed keys (for player car only)
-                        moveCars(isUP_P((int)clientList.get(c)), isDO_P((int)clientList.get(c)), isLE_P((int)clientList.get(c)), isRI_P((int)clientList.get(c)), vCars, c);
-                       }
+                        moveCars(isUP_P((int)clientList.get(c)), isDO_P((int)clientList.get(c)), isLE_P((int)clientList.get(c)), isRI_P((int)clientList.get(c)), vCars, (int)clientList.get(c));
+                       
                         //Manage the collisions (the finish line is a CollidableRectangle, so it also tells whether the game must end soon)
-                        setbGameFinishing(manageCollisions(vCars, vTabObstacles, isbGameFinishing()));
-
+                        setbGameFinishing(manageCollisions(vCars, vTabObstacles, isbGameFinishing(), (int)clientList.get(c)));
+                          
                         //Re-initialize the vectors for display rectangles
                         vDisplayRoad = new Vector<Rectangle>();
                         vDisplayObstacles = new Vector<Rectangle>();
                         vDisplayCars = new Vector<Rectangle>();
-
+                         
                         //Find the rectangles to display according to the car speed and position
-                        findDisplayRectangles(vTabRoad, vTabObstacles, vCars, vDisplayRoad, vDisplayObstacles, vDisplayCars);
-
+                        findDisplayRectangles(vTabRoad, vTabObstacles, vCars, vDisplayRoad, vDisplayObstacles, vDisplayCars, (int)clientList.get(c));
+                        
                         //Get position (rank)
                         if(!isbGameFinishing())
                         {
                             int pos = 1;
-                            int ypos = (int)vCars.elementAt(0).y;
+                            int ypos = (int)(htIdClient.get(clientList.get(c)).getCar()).y;
                             Iterator<Car> iCars = vCars.iterator();
                             Car temp = iCars.next(); //Skip first car (player car)
                             if(temp.bustedTime > 0)
@@ -461,7 +461,7 @@ public class Core implements Runnable{
                             }
                             setiFinalPosition(pos);
                         }
-
+                     }
                     }
 
                     //The score updates every second if the game is running by adding the square of the current player car speed
@@ -472,7 +472,7 @@ public class Core implements Runnable{
                             
                              for(int c = 0; c<clientList.size();c++){ 
                                  
-                                setScore((int) (getScore((int)clientList.get(c)) + Math.pow(vCars.elementAt(c).ySpeed, 2)),(int)clientList.get(c));
+                                setScore((int) (getScore((int)clientList.get(c)) + Math.pow((htIdClient.get(clientList.get(c)).getCar()).ySpeed, 2)),(int)clientList.get(c));
                             
                              }
                     }
@@ -556,10 +556,10 @@ public class Core implements Runnable{
                       for(int c = 0; c<clientList.size();c++){    
 
                     //Move the cars according to their speed, acceleration and to the pressed keys (for player car only)
-   /* */                    moveCars(isUP_P((int)clientList.get(c)), isDO_P((int)clientList.get(c)), isLE_P((int)clientList.get(c)), isRI_P((int)clientList.get(c)), vCars, c);
-                      }
+   /* */                    moveCars(isUP_P((int)clientList.get(c)), isDO_P((int)clientList.get(c)), isLE_P((int)clientList.get(c)), isRI_P((int)clientList.get(c)), vCars, (int)clientList.get(c));
+                      
                     //Manage the collisions (the finish line is a CollidableRectangle, so it also tells whether the game must end soon)
-                    setbGameFinishing(manageCollisions(vCars, vTabObstacles, isbGameFinishing()));
+                    setbGameFinishing(manageCollisions(vCars, vTabObstacles, isbGameFinishing(), (int)clientList.get(c)));
 
                     //Re-initialize the vectors for display rectangles
                     vDisplayRoad = new Vector<Rectangle>();
@@ -567,13 +567,13 @@ public class Core implements Runnable{
                     vDisplayCars = new Vector<Rectangle>();
 
                     //Find the rectangles to display according to the car speed and position
-                    findDisplayRectangles(vTabRoad, vTabObstacles, vCars, vDisplayRoad, vDisplayObstacles, vDisplayCars);
+                    findDisplayRectangles(vTabRoad, vTabObstacles, vCars, vDisplayRoad, vDisplayObstacles, vDisplayCars, (int)clientList.get(c));
 
                     //Get position (rank)
                     if(!isbGameFinishing())
                     {
                         int pos = 1;
-                        int ypos = (int)vCars.elementAt(0).y;
+                        int ypos = (int)(htIdClient.get(clientList.get(c)).getCar()).y;
                         Iterator<Car> iCars = vCars.iterator();
                         Car temp = iCars.next(); //Skip first car (player car)
                         if(temp.bustedTime > 0)
@@ -597,7 +597,7 @@ public class Core implements Runnable{
                   // gameclient = (IGUI)this.clientList.get(0);
                  //  gameclient.update(vDisplayRoad, vDisplayObstacles, vDisplayCars, vCars.elementAt(0), iFinalPosition, iNbParticipants, bGameFinishing, sFinalPosition);
                     
-                 this.doCallbacks();
+                 this.doCallbacks((int)clientList.get(c));
                   
                   
 
@@ -610,10 +610,12 @@ public class Core implements Runnable{
                     if(isbGameInProgress() == true)
                        for(int c = 0; c<clientList.size();c++){ 
                                  
- /*  */                        setScore((int) (getScore((int)clientList.get(c)) + Math.pow(vCars.elementAt(c).ySpeed, 2)),(int)clientList.get(c));
+ /*  */                        setScore((int) (getScore((int)clientList.get(c)) + Math.pow(htIdClient.get(clientList.get(c)).getCar().ySpeed, 2)),(int)clientList.get(c));
                             
                              }
                 }
+                
+              }
             }
             catch(Exception e)
             {
@@ -635,7 +637,7 @@ public class Core implements Runnable{
      * @param bGameFinishing True if the finish line has been passed
      * @return True if the finish line has just been passed. False otherwise
      */
-    public boolean manageCollisions(Vector<Car> Cars, Vector<CollidableRectangle>[] vTabObstacles, boolean bGameFinishing)
+    public boolean manageCollisions(Vector<Car> Cars, Vector<CollidableRectangle>[] vTabObstacles, boolean bGameFinishing, int id)
     {
         //Is the finish line been passed?
         boolean bgf = bGameFinishing;
@@ -723,8 +725,8 @@ public class Core implements Runnable{
                             myCar.ySpeed = 0;
                             if(myCar.id == 6)
                             {
-                                LE_P = false;
-                                RI_P = false;
+                                  htIdClient.get(id).setLE_P(false); //LE_P = false;
+/**/                              htIdClient.get(id).setRI_P(false);//RI_P = false;
                             }
                         }
                     }
@@ -862,21 +864,22 @@ public class Core implements Runnable{
      * @param RI_P True if the right arrow is being pressed
      * @param vCars The vector of cars to move
      */
-    public void moveCars(boolean UP_P, boolean DO_P, boolean LE_P, boolean RI_P, Vector<Car> vCars, int c)
+    public void moveCars(boolean UP_P, boolean DO_P, boolean LE_P, boolean RI_P, Vector<Car> vCars, int id)
     {
         //Extract the player's car (always at position 0 in the vector!)
-        Car myCar = vCars.elementAt(c);
+        Car myCar =   htIdClient.get(id).getCar();
+/**/                                 
 
         //If we did not pass the finish line, we can still act on the acceleration on the y axis
         if(!(bGameFinishing))
         {
-            if(UP_P)
+             if(htIdClient.get(id).isUP_P())
             {
                 //Accelerates
                 if(myCar.yAcc < 4)
                     myCar.yAcc++;
             }
-            else if(DO_P)
+            else if((htIdClient.get(id).isDO_P()))
             {
                 //Decelerates
                 if(myCar.yAcc > -8)
@@ -898,13 +901,13 @@ public class Core implements Runnable{
         }
 
         //Impacts the acceleration of the x axis
-        if(RI_P)
+        if((htIdClient.get(id).isRI_P()))
         {
             //Going to the right
             if(myCar.xAcc < 4)
                 myCar.xAcc++;
         }
-        else if(LE_P)
+        else if((htIdClient.get(id).isLE_P()))
         {
             //Going to the left
             if(myCar.xAcc > -4)
@@ -1042,12 +1045,12 @@ public class Core implements Runnable{
      * @param vDisplayCars The vector of cars to display (updated)
      */
     public void findDisplayRectangles(Vector<Rectangle>[] vTabRoad, Vector<CollidableRectangle>[] vTabObstacles, Vector<Car> vCars,
-            Vector<Rectangle> vDisplayRoad, Vector<Rectangle> vDisplayObstacles, Vector<Rectangle> vDisplayCars)
+            Vector<Rectangle> vDisplayRoad, Vector<Rectangle> vDisplayObstacles, Vector<Rectangle> vDisplayCars, int id)
     {
 
         //Where is the display window?
         int myCarY = 0;
-        Car currentCar = vCars.elementAt(0);
+        Car currentCar = htIdClient.get(id).getCar();
         myCarY = (int)currentCar.y;           //Position on the y axis of the car on the road
 
         //Where is the car w.r.t the display according to its speed?
@@ -2137,19 +2140,23 @@ public class Core implements Runnable{
     } 
   } 
 
-  private synchronized void doCallbacks( ) throws java.rmi.RemoteException {
+  private synchronized void doCallbacks(int id ) throws java.rmi.RemoteException {
     // make callback to each registered client
    /* System.out.println(
        "**************************************\n"
         + "Callbacks initiated ---");*/
-    for (int i = 0; i < clientList.size(); i++){
+    //for (int i = 0; i < clientList.size(); i++){
      // System.out.println("doing "+ i +"-th callback\n");    
       // convert the vector object to a callback object
-       int Clientid = (int) clientList.elementAt(i);
+       //int Clientid = (int) clientList.elementAt(i);
       // invoke the callback method
      
-      coreserv.update (Clientid, vDisplayRoad, vDisplayObstacles, vDisplayCars, vCars.elementAt(0), getiFinalPosition(), getiNbParticipants(), isbGameFinishing(), getsFinalPosition());
-    }// end for
+     // coreserv.update (Clientid, vDisplayRoad, vDisplayObstacles, vDisplayCars, vCars.elementAt(0), getiFinalPosition(), getiNbParticipants(), isbGameFinishing(), getsFinalPosition());
+   
+    coreserv.update (id, vDisplayRoad, vDisplayObstacles, vDisplayCars, htIdClient.get(id).getCar(), getiFinalPosition(), getiNbParticipants(), isbGameFinishing(), getsFinalPosition());
+
+  
+  //}// end for
     /*System.out.println("********************************\n" +
                        "Server completed callbacks ---");*/
   } // doCallbacks
@@ -2416,7 +2423,7 @@ public class Core implements Runnable{
         return iFinalPosition;
     }
     
-     public boolean isUP_P(int gamegui){
+     public boolean isUP_P(){
         
         return this.UP_P;
     }
