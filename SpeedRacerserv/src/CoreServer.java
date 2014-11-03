@@ -396,7 +396,7 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
         htIdCore.get(gamegui).setScore(aScore, gamegui);
     }
     
-    public void update(int clientid, Vector<Rectangle> vDisplayRoad, Vector<Rectangle> vDisplayObstacles, Vector<Rectangle> vDisplayCars, Car myCar, int pos, int nbParticipants, boolean bGameOver, String sPosition) throws RemoteException{
+    public void update(int clientid, Vector<Rectangle> vDisplayRoad, Vector<Rectangle> vDisplayObstacles, Vector<Rectangle> vDisplayCars, Car myCar, int pos, int nbParticipants, boolean bGameOver, int sPosition) throws RemoteException{
         
           htIdStub.get(clientid).update(vDisplayRoad, vDisplayObstacles, vDisplayCars, myCar, pos, nbParticipants, bGameOver, sPosition);
     }

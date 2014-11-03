@@ -326,7 +326,7 @@ public class GUI extends javax.swing.JFrame   {
      * @param bGameOver True if the game is finishing and the game over message should be displayed
      * @param sPosition The position (rank) to display if bGameOver is true
      */
-    public void update(Vector<Rectangle> vDisplayRoad, Vector<Rectangle> vDisplayObstacles, Vector<Rectangle> vDisplayCars, Car myCar, int pos, int nbParticipants, boolean bGameOver, String sPosition)
+    public void update(Vector<Rectangle> vDisplayRoad, Vector<Rectangle> vDisplayObstacles, Vector<Rectangle> vDisplayCars, Car myCar, int pos, int nbParticipants, boolean bGameOver, int sPosition)
     {
         //Set the player's score
         jYourScore.setText(game.getScore()+"");

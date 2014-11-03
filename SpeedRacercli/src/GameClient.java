@@ -141,7 +141,7 @@ public class GameClient extends UnicastRemoteObject implements IGUI{
           
       }
  
-   public void update(final Vector<Rectangle> vDisplayRoad, final Vector<Rectangle> vDisplayObstacles, final Vector<Rectangle> vDisplayCars, final Car myCar, final int pos, final int nbParticipants, final boolean bGameOver, final String sPosition){
+   public void update(final Vector<Rectangle> vDisplayRoad, final Vector<Rectangle> vDisplayObstacles, final Vector<Rectangle> vDisplayCars, final Car myCar, final int pos, final int nbParticipants, final boolean bGameOver, final int sPosition){
         try {
             //Ask the GUI to perform its update
             javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
