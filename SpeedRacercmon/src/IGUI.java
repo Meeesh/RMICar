@@ -19,7 +19,7 @@ import java.util.Vector;
  */
 public interface IGUI extends Remote {
     
-     public void update(Vector<Rectangle> vDisplayRoad, Vector<Rectangle> vDisplayObstacles, Vector<Rectangle> vDisplayCars, Car myCar, int pos, int nbParticipants, boolean bGameOver, int sPosition)throws RemoteException;
+     public void update(Vector<Rectangle> vDisplayRoad, Vector<Rectangle> vDisplayObstacles, Vector<Rectangle> vDisplayCars, Car myCar, int pos, int nbParticipants, boolean bGameOver, int sPosition ,int PositionPlayer)throws RemoteException;
     
      public void setbutton(boolean t)throws RemoteException;
              

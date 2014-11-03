@@ -153,7 +153,7 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
             id = ++nextID;
         }
 
-			clients.add(callbackClientObject); //ajoute le client dans le vecteur
+			//clients.add(callbackClientObject); //ajoute le client dans le vecteur
                         callbackClientObject.notifymessage("Connecting to the server ...");
 
 			//htIdCore.put(var, CurrentCore);  //creer une entrée gui-core dans la table
@@ -396,9 +396,9 @@ public class CoreServer extends UnicastRemoteObject implements ICore {
         htIdCore.get(gamegui).setScore(aScore, gamegui);
     }
     
-    public void update(int clientid, Vector<Rectangle> vDisplayRoad, Vector<Rectangle> vDisplayObstacles, Vector<Rectangle> vDisplayCars, Car myCar, int pos, int nbParticipants, boolean bGameOver, int sPosition) throws RemoteException{
+    public void update(int clientid, Vector<Rectangle> vDisplayRoad, Vector<Rectangle> vDisplayObstacles, Vector<Rectangle> vDisplayCars, Car myCar, int pos, int nbParticipants, boolean bGameOver, int sPosition, int iPosiP) throws RemoteException{
         
-          htIdStub.get(clientid).update(vDisplayRoad, vDisplayObstacles, vDisplayCars, myCar, pos, nbParticipants, bGameOver, sPosition);
+          htIdStub.get(clientid).update(vDisplayRoad, vDisplayObstacles, vDisplayCars, myCar, pos, nbParticipants, bGameOver, sPosition, iPosiP);
     }
     
     public void setbutton(int clientid, boolean etat)throws RemoteException{

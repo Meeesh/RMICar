@@ -429,7 +429,7 @@ public class Core implements Runnable{
                         moveCars(isUP_P((int)clientList.get(c)), isDO_P((int)clientList.get(c)), isLE_P((int)clientList.get(c)), isRI_P((int)clientList.get(c)), vCars, (int)clientList.get(c));
                        
                         //Manage the collisions (the finish line is a CollidableRectangle, so it also tells whether the game must end soon)
-                        setbGameFinishing(manageCollisions(vCars, vTabObstacles, isbGameFinishing(), (int)clientList.get(c)));
+                        setbGameFinishing(manageCollisions(vCars, vTabObstacles, isbGameFinishing(), c ));
                           
                         //Re-initialize the vectors for display rectangles
                         vDisplayRoad = new Vector<Rectangle>();
@@ -574,6 +574,7 @@ public class Core implements Runnable{
                     if(!isbGameFinishing())
                     {
                         int pos = 1;
+                        int posP = 1;
                         int ypos = (int)(htIdClient.get(clientList.get(c)).getCar()).y;
                         Iterator<Car> iCars = vCars.iterator();
                         Car temp = htIdClient.get(clientList.get(c)).getCar();
@@ -581,20 +582,37 @@ public class Core implements Runnable{
                             temp.bustedTime--;
                         while(iCars.hasNext())
                         {
+                            
                             Car currentCar = iCars.next();
                             if(currentCar.Racer)
                             {
+                                
                                 if(currentCar.y < ypos){
                                     pos++;
                                 }
                                     
                             }
+                            if(clientList.size() == 1)
+                            {
+                                posP=4;
+                            }
+                            else{
+                                if(currentCar.id == 6){
+                                        if(currentCar.y < ypos){
+                                            posP++;
+
+                                        }
+                                }
+                            }
                             if(currentCar.bustedTime > 0)
                                 currentCar.bustedTime--;
                         }
                         htIdClient.get(clientList.get(c)).setPosi(pos);
-                        System.out.println("Pos : " + pos + "CliPos : " + htIdClient.get(clientList.get(c)).getPosi());
+                        htIdClient.get(clientList.get(c)).setPosiP(posP);
+                        //System.out.println("Id client : " + c + "CliPos : " + htIdClient.get(clientList.get(c)).getPosi() + '\n');
+                        
                         setiFinalPosition(pos);
+                        
                     }
 
                     //Ask the GUI to perform its update
@@ -694,6 +712,7 @@ public class Core implements Runnable{
 
                             //Update the String representation of the rank
                             int arri = htIdClient.get(id).getPosi();
+                            System.out.println("IDClient : "+ id +" -> POS : "+ arri);
                             if(arri == 1)
                             {
                                 setsFinalPosition("1st");
@@ -2159,7 +2178,7 @@ public class Core implements Runnable{
      
      // coreserv.update (Clientid, vDisplayRoad, vDisplayObstacles, vDisplayCars, vCars.elementAt(0), getiFinalPosition(), getiNbParticipants(), isbGameFinishing(), getsFinalPosition());
    
-    coreserv.update (id, vDisplayRoad, vDisplayObstacles, vDisplayCars, htIdClient.get(id).getCar(), getiFinalPosition(), getiNbParticipants(), isbGameFinishing(), htIdClient.get(id).getPosi());
+    coreserv.update (id, vDisplayRoad, vDisplayObstacles, vDisplayCars, htIdClient.get(id).getCar(), getiFinalPosition(), getiNbParticipants(), isbGameFinishing(), htIdClient.get(id).getPosi(),htIdClient.get(id).getPosiP());
 
   
   //}// end for
@@ -2335,6 +2354,7 @@ public class Core implements Runnable{
     private int score;
     private Car voiture;
     private int position;
+    private int positionPlayer;
      /**
      * True if the GUI is closing. False otherwise
      */
@@ -2490,6 +2510,14 @@ public class Core implements Runnable{
     
     public int getPosi(){
         return position;
+    }
+    
+    public void setPosiP(int pos){
+        positionPlayer = pos;
+    }
+    
+    public int getPosiP(){
+        return positionPlayer;
     }
     
 }

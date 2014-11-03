@@ -326,7 +326,7 @@ public class GUI extends javax.swing.JFrame   {
      * @param bGameOver True if the game is finishing and the game over message should be displayed
      * @param sPosition The position (rank) to display if bGameOver is true
      */
-    public void update(Vector<Rectangle> vDisplayRoad, Vector<Rectangle> vDisplayObstacles, Vector<Rectangle> vDisplayCars, Car myCar, int pos, int nbParticipants, boolean bGameOver, int sPosition)
+    public void update(Vector<Rectangle> vDisplayRoad, Vector<Rectangle> vDisplayObstacles, Vector<Rectangle> vDisplayCars, Car myCar, int pos, int nbParticipants, boolean bGameOver, int sPosition, int PositionPlayer)
     {
         //Set the player's score
         jYourScore.setText(game.getScore()+"");
@@ -377,17 +377,47 @@ public class GUI extends javax.swing.JFrame   {
             }
 
             //If we passed the finish line, display the game over sign with final rank information
-            if(bGameOver)
+            if(bGameOver && sPosition==1)
             {
                 g2.setColor(Color.BLACK);
                 g2.fillRect(110, 150, 160, 60);
-                g2.setColor(Color.RED);
-                String sGameOver = new String("GAME OVER");
+                g2.setColor(Color.GREEN);
+                String sGameOver = new String("You Win !");
                 g2.setFont(new Font("Arial", Font.BOLD, 24));
                 g2.drawChars(sGameOver.toCharArray(), 0, sGameOver.length(), 120, 180);
                 String sGameOver2 = new String("You ranked " + sPosition + " !");
                 g2.setFont(new Font("Arial", Font.BOLD, 18));
                 g2.drawChars(sGameOver2.toCharArray(), 0, sGameOver2.length(), 120, 200);
+            }
+            else
+            {
+                if(bGameOver && PositionPlayer==1)
+                {
+                    g2.setColor(Color.BLACK);
+                    g2.fillRect(110, 150, 160, 60);
+                    g2.setColor(Color.GREEN);
+                    String sGameOver = new String("You Winner Player!");
+                    g2.setFont(new Font("Arial", Font.BOLD, 24));
+                    g2.drawChars(sGameOver.toCharArray(), 0, sGameOver.length(), 120, 180);
+                    String sGameOver2 = new String("You ranked " + sPosition + " !");
+                    g2.setFont(new Font("Arial", Font.BOLD, 18));
+                    g2.drawChars(sGameOver2.toCharArray(), 0, sGameOver2.length(), 120, 200);
+                }
+                else
+                {
+                    if(bGameOver)
+                    {
+                        g2.setColor(Color.BLACK);
+                        g2.fillRect(110, 150, 160, 60);
+                        g2.setColor(Color.RED);
+                        String sGameOver = new String("GAME OVER");
+                        g2.setFont(new Font("Arial", Font.BOLD, 24));
+                        g2.drawChars(sGameOver.toCharArray(), 0, sGameOver.length(), 120, 180);
+                        String sGameOver2 = new String("You ranked " + sPosition + " !");
+                        g2.setFont(new Font("Arial", Font.BOLD, 18));
+                        g2.drawChars(sGameOver2.toCharArray(), 0, sGameOver2.length(), 120, 200);
+                    }
+                }
             }
 
             //If we are busted by the police
